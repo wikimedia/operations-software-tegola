@@ -1,0 +1,29 @@
+version: v4
+base: docker-registry.wikimedia.org/golang:1.13-3
+lives:
+  in: /srv/service/
+runs:
+  environment:
+    APP_BASE_PATH: /srv/service
+
+variants:
+  build:
+    apt: { packages: [build-essential] }
+    copies: [local]
+    python:
+      requirements: [requirements.txt]
+    entrypoint: [make, tegola_cmd]
+    runs: { insecurely: true }
+  development:
+    includes: [build]
+    runs:
+    entrypoint: [cmd/tegola/tegola]
+  test:
+    includes: [build]
+    entrypoint: [make, test]
+  prep:
+    includes: [build]
+    node: { env: production }
+  production:
+    copies: [prep]
+    node: { env: production }
