@@ -9,21 +9,18 @@ runs:
 variants:
   build:
     apt: { packages: [build-essential] }
-    copies: [local]
-    python:
-      requirements: [requirements.txt]
-    entrypoint: [make, tegola_cmd]
     runs: { insecurely: true }
+    builder:
+      command: [make tegola_cmd]
+      requirements: [.]
   development:
     includes: [build]
-    runs:
     entrypoint: [cmd/tegola/tegola]
   test:
     includes: [build]
     entrypoint: [make, test]
   prep:
     includes: [build]
-    node: { env: production }
   production:
     copies: [prep]
-    node: { env: production }
+    entrypoint: [cmd/tegola/tegola]
