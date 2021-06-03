@@ -14,7 +14,7 @@ docker: dockerfile
 	docker run tegola
 
 tegola_cmd:
-	cd cmd/tegola; 	GOOS=linux go build -mod vendor -tags "noAzblobCache noGpkgProvider" -ldflags="${LDFLAGS}" -o "tegola_${TEGOLA_BRANCH}" -v
+	cd cmd/tegola; 	GOOS=linux go build -mod vendor -tags "noAzblobCache noGpkgProvider" -ldflags="${LDFLAGS}" -o "tegola" -v
 
 test:
 	go test
