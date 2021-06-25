@@ -5,8 +5,6 @@ lives:
 runs:
   environment:
     APP_BASE_PATH: /srv/service
-python:
-  version: python3
 
 variants:
   build:
@@ -24,12 +22,10 @@ variants:
   prep:
     includes: [build]
   production:
+    base: docker-registry.wikimedia.org/python3-build-buster
     copies: [prep]
     entrypoint: [cmd/tegola/tegola]
-  production-tile-pregeneration:
-    base: docker-registry.wikimedia.org/python3-build-buster
     apt: { packages: [build-essential, jq] }
-    copies: [prep]
     python:
       requirements: ["requirements.txt"]
-    runs: { insecurely: true }
+      version: python3
