@@ -23,6 +23,7 @@ variants:
     includes: [build]
   production:
     base: docker-registry.wikimedia.org/python3-build-buster
+    apt: { packages: [wmf-certificates] }
     copies: [prep]
     entrypoint: [cmd/tegola/tegola]
     apt: { packages: [build-essential, jq] }
