@@ -160,6 +160,7 @@ func New(config dict.Dicter) (cache.Interface, error) {
 	}
 
 	awsConfig.S3ForcePathStyle = aws.Bool(s3ForcePathStyle)
+	awsConfig.LogLevel = aws.LogLevel(aws.LogDebugWithHTTPBody)
 
 	// setup the s3 session.
 	// if the accessKey and secreteKey are not provided (static creds) then the provider chain is used
