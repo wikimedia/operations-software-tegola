@@ -28,6 +28,7 @@ TMP_DIR=$(mktemp -d /tmp/tegola-XXXXXXXXXX)
 TILELIST_PATH=${TEGOLA_TILELIST_DIR:-$TMP_DIR}/tilelist.txt
 BATCH_SIZE=${TEGOLA_PREGENERATION_BATCH_SIZE:-100}
 DEQUEUE_TIMEOUT=${TEGOLA_PREGENERATION_DEQUEUE_TIMEOUT:-60}
+CACHE_OPERATION=${TEGOLA_CACHE_OPERATION:"seed"}
 
 set -xv
 
@@ -46,7 +47,7 @@ do
 
     # Pregenerate tiles that exist in tilelist
     set -e
-    $TEGOLA_PATH --config "$TEGOLA_CONFIG_PATH" cache seed tile-list "$TILELIST_PATH"
+    $TEGOLA_PATH --config "$TEGOLA_CONFIG_PATH" cache $CACHE_OPERATION tile-list "$TILELIST_PATH"
     set +e
 
     if [ "$dequeueStatus" -eq 100 ]  # Queue is empty
