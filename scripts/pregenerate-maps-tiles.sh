@@ -41,7 +41,7 @@ do
           dequeue --batch "$BATCH_SIZE" \
                   --blocking-dequeue-timeout "$DEQUEUE_TIMEOUT" \
                   --exit-on-empty true \
-                  --dequeue-raise-on-empty true | jq -r .tile > "$TILELIST_PATH"
+                  --dequeue-raise-on-empty true | jq -r 'select(.meta.domain != "canary").tile' > "$TILELIST_PATH"
 
     dequeueStatus=${PIPESTATUS[0]}
 
