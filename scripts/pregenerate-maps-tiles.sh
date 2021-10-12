@@ -36,7 +36,7 @@ ENVOY_HEALTHCHECK_MAX_RETRIES=${ENVOY_HEALTHCHECK_MAX_RETRIES:-5}
 set -xv
 
 exit_envoy() {
-    echo "Exit envoy pod"
+    echo "Exit envoy container"
     curl -X POST "$ENVOY_ADMIN_ENDPOINT"/quitquitquit
 }
 
