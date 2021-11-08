@@ -29,6 +29,8 @@ TILELIST_PATH=${TEGOLA_TILELIST_DIR:-$TMP_DIR}/tilelist.txt
 DEQUEUE_TIMEOUT=${TEGOLA_PREGENERATION_DEQUEUE_TIMEOUT:-60}
 CACHE_OPERATION=${TEGOLA_CACHE_OPERATION:-"seed"}
 ENVOY_ADMIN_ENDPOINT=${ENVOY_ADMIN_ENDPOINT:-"127.0.0.1:1666"}
+ENVOY_HEALTHCHECK_ENDPOINT=${ENVOY_HEALTHCHECK_ENDPOINT:-"127.0.0.1:9361/healthz"}
+ENVOY_HEALTHCHECK_MAX_RETRIES=${ENVOY_HEALTHCHECK_MAX_RETRIES:-5}
 
 set -xv
 
@@ -38,6 +40,17 @@ exit_envoy() {
 }
 
 trap exit_envoy EXIT
+
+# Wait for envoy sidecar to get ready
+while [ "$(curl -m 5 -s -o /dev/null -w '%{http_code}' $ENVOY_HEALTHCHECK_ENDPOINT)" != "200" ]; do
+    sleep 5
+    ((ENVOY_HEALTHCHECK_MAX_RETRIES--))
+    if [ "$ENVOY_HEALTHCHECK_MAX_RETRIES" -le 0 ]; then
+        echo "Envoy not ready"
+        exit 1
+    fi
+    echo "Retrying envoy healthcheck"
+done
 
 while true;
 do
