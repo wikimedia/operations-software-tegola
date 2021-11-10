@@ -25,6 +25,7 @@ then
 fi
 
 TMP_DIR=$(mktemp -d /tmp/tegola-XXXXXXXXXX)
+BATCH_SIZE=${TEGOLA_PREGENERATION_BATCH_SIZE:-1000}
 TILELIST_PATH=${TEGOLA_TILELIST_DIR:-$TMP_DIR}/tilelist.txt
 DEQUEUE_TIMEOUT=${TEGOLA_PREGENERATION_DEQUEUE_TIMEOUT:-60}
 CACHE_OPERATION=${TEGOLA_CACHE_OPERATION:-"seed"}
@@ -41,10 +42,11 @@ trap exit_envoy EXIT
 
 while true;
 do
-    # Dequeue a message from the queue and store tiles in tilelist
+    # Dequeue a batch of messages from the queue and store tiles in tilelist
     echo "Dequeueing expired tiles from broker"
     poppy --broker-url "$TEGOLA_BROKER_URL" \
           --queue-name "$TEGOLA_QUEUE_NAME" \
+          --batch "$BATCH_SIZE" \
           dequeue --blocking-dequeue-timeout "$DEQUEUE_TIMEOUT" \
                   --exit-on-empty true \
                   --dequeue-raise-on-empty true | jq -r 'select(.meta.domain != "canary").changes | .[].tile' > "$TILELIST_PATH"
