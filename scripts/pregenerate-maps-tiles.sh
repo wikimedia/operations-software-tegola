@@ -68,7 +68,7 @@ do
 
     # Pregenerate tiles that exist in tilelist
     set -e
-    $TEGOLA_PATH --config "$TEGOLA_CONFIG_PATH" cache $CACHE_OPERATION tile-list "$TILELIST_PATH"
+    $TEGOLA_PATH --config "$TEGOLA_CONFIG_PATH" cache $CACHE_OPERATION --overwrite tile-list "$TILELIST_PATH"
     set +e
 
     if [ "$dequeueStatus" -eq 100 ]  # Queue is empty
