@@ -33,8 +33,6 @@ ENVOY_ADMIN_ENDPOINT=${ENVOY_ADMIN_ENDPOINT:-"127.0.0.1:1666"}
 ENVOY_HEALTHCHECK_ENDPOINT=${ENVOY_HEALTHCHECK_ENDPOINT:-"127.0.0.1:9361/healthz"}
 ENVOY_HEALTHCHECK_MAX_RETRIES=${ENVOY_HEALTHCHECK_MAX_RETRIES:-5}
 
-set -xv
-
 exit_envoy() {
     echo "Exit envoy container"
     curl -X POST "$ENVOY_ADMIN_ENDPOINT"/quitquitquit
@@ -81,5 +79,3 @@ do
         exit 1
     fi
 done
-
-set +xv
