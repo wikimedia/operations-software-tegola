@@ -59,8 +59,8 @@ do
     echo "Dequeueing expired tiles from broker"
     poppy --broker-url "$TEGOLA_BROKER_URL" \
           --queue-name "$TEGOLA_QUEUE_NAME" \
-          --batch "$BATCH_SIZE" \
           dequeue --blocking-dequeue-timeout "$DEQUEUE_TIMEOUT" \
+                  --batch "$BATCH_SIZE" \
                   --exit-on-empty true \
                   --dequeue-raise-on-empty true | jq -r 'select(.meta.domain != "canary").changes | .[].tile' > "$TILELIST_PATH"
 
