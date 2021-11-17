@@ -35,7 +35,7 @@ ENVOY_HEALTHCHECK_MAX_RETRIES=${ENVOY_HEALTHCHECK_MAX_RETRIES:-5}
 
 exit_envoy() {
     echo "Exit envoy container"
-    curl -X POST "$ENVOY_ADMIN_ENDPOINT"/quitquitquit
+    curl -sS -X POST "$ENVOY_ADMIN_ENDPOINT"/quitquitquit
 }
 
 trap exit_envoy EXIT
