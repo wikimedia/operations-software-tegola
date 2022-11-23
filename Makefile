@@ -6,11 +6,8 @@ LDFLAGS_BRANCH = -X github.com/go-spatial/tegola/internal/build.GitBranch=${TEGO
 LDFLAGS_REVISION = -X github.com/go-spatial/tegola/internal/build.GitRevision=${TEGOLA_HASH}
 LDFLAGS = -w -s ${LDFLAGS_VERSION} ${LDFLAGS_BRANCH} ${LDFLAGS_REVISION}
 
-dockerfile: .pipeline/blubber.yaml
-	blubber .pipeline/blubber.yaml development > Dockerfile
-
-docker: dockerfile
-	docker build -t tegola  .
+docker:
+	docker build -t tegola --target development -f .pipeline/blubber.yaml .
 	docker run tegola
 
 tegola_cmd:
