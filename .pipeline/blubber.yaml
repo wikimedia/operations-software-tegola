@@ -1,5 +1,6 @@
+# syntax=docker-registry.wikimedia.org/repos/releng/blubber:v0.12.1
 version: v4
-base: docker-registry.wikimedia.org/golang:1.13-3
+base: docker-registry.wikimedia.org/golang1.15:1.15-1-20230813
 lives:
   in: /srv/service/
 runs:
@@ -22,10 +23,10 @@ variants:
   prep:
     includes: [build]
   production:
-    base: docker-registry.wikimedia.org/python3-build-buster
+    base: docker-registry.wikimedia.org/python3-bullseye
     copies: [prep]
     entrypoint: [cmd/tegola/tegola]
-    apt: { packages: [build-essential, jq, wmf-certificates, curl, libsnappy-dev] }
+    apt: { packages: [build-essential, jq, wmf-certificates, curl, libsnappy-dev, git] }
     python:
       requirements: ["requirements.txt"]
       version: python3
