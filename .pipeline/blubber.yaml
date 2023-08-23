@@ -1,6 +1,6 @@
 # syntax=docker-registry.wikimedia.org/repos/releng/blubber:v0.12.1
 version: v4
-base: docker-registry.wikimedia.org/golang1.18:1.18-1-20230820
+base: docker-registry.wikimedia.org/golang1.19:1.19-1-20230820
 lives:
   in: /srv/service/
 runs:
