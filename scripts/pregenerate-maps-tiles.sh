@@ -65,7 +65,7 @@ do
     dequeueStatus=${PIPESTATUS[0]}
 
     # Pregenerate tiles that exist in tilelist
-    $TEGOLA_PATH --config "$TEGOLA_CONFIG_PATH" cache $CACHE_OPERATION --overwrite tile-list "$TILELIST_PATH"
+    $TEGOLA_PATH --logger zap --config "$TEGOLA_CONFIG_PATH" cache $CACHE_OPERATION --overwrite tile-list "$TILELIST_PATH"
 
     if [ "$dequeueStatus" -eq 100 ]  # Queue is empty
     then
