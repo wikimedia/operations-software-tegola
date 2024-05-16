@@ -41,6 +41,7 @@ const (
 	ConfigKeyCacheControl   = "cache_control"       //	defaults to ""
 	ConfigKeyContentType    = "content_type"        //	defaults to "application/vnd.mapbox-vector-tile"
 	ConfigKeyS3ForcePath    = "force_path_style"
+	ConfigKeyProxyHost      = "proxy_host"
 )
 
 const (
@@ -51,6 +52,7 @@ const (
 	DefaultContentType = mvt.MimeType
 	DefaultEndpoint    = ""
 	DefaultS3ForcePath = false
+	DefaultProxyHost   = ""
 )
 
 // testData is used during New() to confirm the ability to write, read and purge the cache
@@ -141,6 +143,19 @@ func New(config dict.Dicter) (cache.Interface, error) {
 		return nil, err
 	}
 
+	// If a Proxy/Sidecar/etc.. is used, the Host header needs to
+	// be fixed to allow Request Signing to work.
+	// More info: https://github.com/aws/aws-sdk-go/issues/1473
+	proxy_host := DefaultProxyHost
+	proxy_host, err = config.String(ConfigKeyProxyHost, &proxy_host)
+	if err != nil {
+		return nil, err
+	}
+
+	if proxy_host != "" && endpoint == "" {
+		return nil, errors.New("The endpoint needs to be set if proxy_host is used.")
+	}
+
 	// support for static credentials, this is not recommended by AWS but
 	// necessary for some environments
 	if accessKey != "" && secretKey != "" {
@@ -169,6 +184,18 @@ func New(config dict.Dicter) (cache.Interface, error) {
 		return nil, err
 	}
 	s3cache.Client = s3.New(sess)
+
+        // If proxy_host is set, then the host header needs to be set to the
+        // endpoint for signing, but replaced with the proxy host before connecting.
+	// More info: https://github.com/aws/aws-sdk-go/issues/1473#issuecomment-325509965
+	if proxy_host != "" {
+		s3cache.Client.Handlers.Sign.PushFront(func(r *request.Request) {
+			r.HTTPRequest.URL.Host = endpoint
+		})
+		s3cache.Client.Handlers.Sign.PushBack(func(r *request.Request) {
+			r.HTTPRequest.URL.Host = proxy_host
+		})
+	}
 
 	// check for control_access_list env var
 	acl := os.Getenv("AWS_ACL")
