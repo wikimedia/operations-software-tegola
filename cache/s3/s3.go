@@ -7,6 +7,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
@@ -41,18 +42,18 @@ const (
 	ConfigKeyCacheControl   = "cache_control"       //	defaults to ""
 	ConfigKeyContentType    = "content_type"        //	defaults to "application/vnd.mapbox-vector-tile"
 	ConfigKeyS3ForcePath    = "force_path_style"
-	ConfigKeyProxyHost      = "proxy_host"
+	ConfigKeyReqSigningHost = "req_signing_host"
 )
 
 const (
-	DefaultBasepath    = ""
-	DefaultRegion      = "us-east-1"
-	DefaultAccessKey   = ""
-	DefaultSecretKey   = ""
-	DefaultContentType = mvt.MimeType
-	DefaultEndpoint    = ""
-	DefaultS3ForcePath = false
-	DefaultProxyHost   = ""
+	DefaultBasepath       = ""
+	DefaultRegion         = "us-east-1"
+	DefaultAccessKey      = ""
+	DefaultSecretKey      = ""
+	DefaultContentType    = mvt.MimeType
+	DefaultEndpoint       = ""
+	DefaultS3ForcePath    = false
+	DefaultReqSigningHost = ""
 )
 
 // testData is used during New() to confirm the ability to write, read and purge the cache
@@ -146,14 +147,14 @@ func New(config dict.Dicter) (cache.Interface, error) {
 	// If a Proxy/Sidecar/etc.. is used, the Host header needs to
 	// be fixed to allow Request Signing to work.
 	// More info: https://github.com/aws/aws-sdk-go/issues/1473
-	proxy_host := DefaultProxyHost
-	proxy_host, err = config.String(ConfigKeyProxyHost, &proxy_host)
+	req_signing_host := DefaultReqSigningHost
+	req_signing_host, err = config.String(ConfigKeyReqSigningHost, &req_signing_host)
 	if err != nil {
 		return nil, err
 	}
 
-	if proxy_host != "" && endpoint == "" {
-		return nil, errors.New("The endpoint needs to be set if proxy_host is used.")
+	if req_signing_host != "" && endpoint == "" {
+		return nil, errors.New("The endpoint needs to be set if req_signing_host is set.")
 	}
 
 	// support for static credentials, this is not recommended by AWS but
@@ -185,15 +186,20 @@ func New(config dict.Dicter) (cache.Interface, error) {
 	}
 	s3cache.Client = s3.New(sess)
 
-        // If proxy_host is set, then the host header needs to be set to the
-        // endpoint for signing, but replaced with the proxy host before connecting.
-	// More info: https://github.com/aws/aws-sdk-go/issues/1473#issuecomment-325509965
-	if proxy_host != "" {
+	// If req_signing_host is set, then the HTTP host header needs to be updated
+	// for signing, but replaced with the original value before connecting
+	// to the endpoint.
+	// The code is inspired by
+	// https://github.com/aws/aws-sdk-go/issues/1473#issuecomment-325509965
+	if req_signing_host != "" {
 		s3cache.Client.Handlers.Sign.PushFront(func(r *request.Request) {
-			r.HTTPRequest.URL.Host = endpoint
+			r.HTTPRequest.URL.Host = req_signing_host
 		})
 		s3cache.Client.Handlers.Sign.PushBack(func(r *request.Request) {
-			r.HTTPRequest.URL.Host = proxy_host
+			// If the endpoint variable contains the http(s) protocol prefix,
+			// we need to sanitize it before adding it back.
+			endpoint = strings.TrimPrefix(strings.TrimPrefix(endpoint, "http://"), "https://")
+			r.HTTPRequest.URL.Host = endpoint
 		})
 	}
 
