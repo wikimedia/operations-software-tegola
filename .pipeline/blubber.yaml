@@ -1,4 +1,5 @@
 # syntax=docker-registry.wikimedia.org/repos/releng/blubber/buildkit:v0.21.1
+# date of last forced rebuild: 2024-09-10T09:50
 version: v4
 base: docker-registry.wikimedia.org/golang1.19:1.19-1-20231001
 lives:
