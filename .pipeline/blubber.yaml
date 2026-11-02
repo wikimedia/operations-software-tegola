@@ -1,6 +1,6 @@
 # syntax = docker-registry.wikimedia.org/repos/releng/blubber/buildkit:v1.8.0
 version: v4
-base: docker-registry.wikimedia.org/golang1.24:1.24-20260503
+base: docker-registry.wikimedia.org/golang1.24:1.24-20261101
 lives:
   in: /srv/service/
 runs:
@@ -23,7 +23,7 @@ variants:
   prep:
     includes: [build]
   production:
-    base: docker-registry.wikimedia.org/python3-trixie:0.0.1-20260503
+    base: docker-registry.wikimedia.org/python3-trixie:0.0.1-20261101
     copies: [prep]
     entrypoint: [cmd/tegola/tegola]
     apt: { packages: [build-essential, python3-dev, jq, wmf-certificates, curl, libsnappy-dev, git] }
